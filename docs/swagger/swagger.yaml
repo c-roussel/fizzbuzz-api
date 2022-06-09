@@ -1,0 +1,40 @@
+basePath: /
+definitions:
+  handlers.PingOutput:
+    properties:
+      git_hash:
+        type: string
+      message:
+        type: string
+    type: object
+info:
+  contact:
+    email: support@swagger.io
+    name: API Support
+    url: http://www.swagger.io/support
+  description: This is a custom FizzBuzz HTTP server.
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: FizzBuzz API
+  version: "1.0"
+paths:
+  /mon/ping:
+    get:
+      consumes:
+      - '*/*'
+      description: get the status of server.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.PingOutput'
+      summary: Show the status of server.
+      tags:
+      - monitoring
+schemes:
+- http
+swagger: "2.0"
