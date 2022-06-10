@@ -3,13 +3,13 @@ lint:
 	gofmt -s -w .
 	go mod tidy
 
-test:
+test: lint
 	go test ./...
 
 swag:
 	swag init -g cmd/server/main.go --output docs/swagger/
 
-build: swag
+build: lint swag
 	go build -ldflags="-s -w" ./cmd/server
 
 clean:
