@@ -1,5 +1,12 @@
 basePath: /
 definitions:
+  handlers.FizzBuzzOutput:
+    properties:
+      result:
+        items:
+          type: string
+        type: array
+    type: object
   handlers.PingOutput:
     properties:
       git_hash:
@@ -20,6 +27,50 @@ info:
   title: FizzBuzz API
   version: "1.0"
 paths:
+  /fizzbuzz:
+    get:
+      consumes:
+      - '*/*'
+      description: Get your own version of the fizzbuzz algortihm.
+      parameters:
+      - description: fizzbuzz's first multiple
+        in: query
+        minimum: 1
+        name: int1
+        required: true
+        type: integer
+      - description: fizzbuzz's second multiple
+        in: query
+        minimum: 1
+        name: int2
+        required: true
+        type: integer
+      - description: fizzbuzz's first replacement
+        in: query
+        name: str1
+        required: true
+        type: string
+      - description: fizzbuzz's second replacement
+        in: query
+        name: str2
+        required: true
+        type: string
+      - description: fizzbuzz's up-to value
+        in: query
+        minimum: 0
+        name: limit
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.FizzBuzzOutput'
+      summary: Customizable fizzbuzz algorithm.
+      tags:
+      - fizzbuzz
   /mon/ping:
     get:
       consumes:

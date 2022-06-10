@@ -25,6 +25,69 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/fizzbuzz": {
+            "get": {
+                "description": "Get your own version of the fizzbuzz algortihm.",
+                "consumes": [
+                    "*/*"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "fizzbuzz"
+                ],
+                "summary": "Customizable fizzbuzz algorithm.",
+                "parameters": [
+                    {
+                        "minimum": 1,
+                        "type": "integer",
+                        "description": "fizzbuzz's first multiple",
+                        "name": "int1",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "minimum": 1,
+                        "type": "integer",
+                        "description": "fizzbuzz's second multiple",
+                        "name": "int2",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "fizzbuzz's first replacement",
+                        "name": "str1",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "fizzbuzz's second replacement",
+                        "name": "str2",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "minimum": 0,
+                        "type": "integer",
+                        "description": "fizzbuzz's up-to value",
+                        "name": "limit",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.FizzBuzzOutput"
+                        }
+                    }
+                }
+            }
+        },
         "/mon/ping": {
             "get": {
                 "description": "get the status of server.",
@@ -50,6 +113,17 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "handlers.FizzBuzzOutput": {
+            "type": "object",
+            "properties": {
+                "result": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
         "handlers.PingOutput": {
             "type": "object",
             "properties": {
