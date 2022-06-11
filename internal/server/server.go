@@ -2,9 +2,11 @@ package server
 
 import (
 	"net/http"
+	"strings"
 
 	"github.com/c-roussel/fizzbuzz-api/internal/handlers"
 	"github.com/go-playground/validator"
+	"github.com/labstack/echo-contrib/prometheus"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	echoSwagger "github.com/swaggo/echo-swagger"
@@ -21,12 +23,25 @@ func (cv *CustomValidator) Validate(i interface{}) error {
 	return nil
 }
 
+// urlSkipper middleware ignores metrics on some route
+func urlSkipper(c echo.Context) bool {
+	if strings.HasPrefix(c.Path(), "/mon") {
+		return true
+	}
+	return false
+}
+
 func New() *echo.Echo {
 	e := echo.New()
 
 	// Middleware
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
+
+	// Enable metrics middleware
+	p := prometheus.NewPrometheus("echo", nil)
+	p.MetricsPath = "/mon/metrics"
+	p.Use(e)
 
 	// Default data validation
 	e.Validator = &CustomValidator{validator: validator.New()}

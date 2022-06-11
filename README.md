@@ -22,17 +22,31 @@ Several ways to run this API:
 - Build the `fizzbuzz-api` docker image using `make docker`.
 Then run `docker run -p $YOUR_PORT:3000 fizzbuzz-api`.
 
+# Routes
+
+Feel free to read `docs/swagger/swagger.yml`.
+
+You also can run the server and reach the `/swagger/index.html` endpoint.
+
 # Configuration
 
 Envrionment variables:
 
 - `FIZZBUZZ_MAX_LIMIT`: integer that will limit the maximum `limit` on /fizzbuzz route.
 
-# Routes
+# Monitoring
 
-Feel free to read `docs/swagger/swagger.yml`.
+This API serves a prometheus endpoint on `GET /mon/metrics`.
 
-You also can run the server and reach the `/swagger/index.html` endpoint.
+You may install [prometheus](https://prometheus.io/download/) and run it:
+
+```
+prometheus --config.file=prometheus.yml
+```
+
+Note that running the prometheus server only makes sense if the API is also running on the same host.
+
+Otherwise, you would need to update the targets in `prometheus.yml`.
 
 # Contributing
 
