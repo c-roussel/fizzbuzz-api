@@ -38,6 +38,18 @@ type FizzBuzzInput struct {
 	Limit int    `query:"limit" validate:"required,min=0"`
 }
 
+// Register increments the input parameters in fizzbuzz statistics
+// See FizzBuzzStats
+func (in FizzBuzzInput) Register() {
+	fizzBuzzGatherer.Hit(in.String())
+}
+
+// String is the string representing of a FizzBuzzInput
+func (in FizzBuzzInput) String() string {
+	return fmt.Sprintf("FizzBuzzInput str1=%s str2=%s int1=%d int2=%d limit=%d",
+		in.Str1, in.Str2, in.Int1, in.Int2, in.Limit)
+}
+
 // FizzBuzzOutput describes the response output for the fizzbuzz handler
 type FizzBuzzOutput struct {
 	Result []string `json:"result"`
@@ -106,6 +118,8 @@ func FizzBuzz(c echo.Context) error {
 			slice[i] = strconv.Itoa(v)
 		}
 	}
+
+	go in.Register()
 
 	return c.JSON(http.StatusOK, FizzBuzzOutput{Result: slice})
 }
