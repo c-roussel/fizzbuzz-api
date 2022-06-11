@@ -1,11 +1,33 @@
 package handlers
 
 import (
+	"fmt"
 	"net/http"
+	"os"
 	"strconv"
 
 	"github.com/labstack/echo/v4"
+	"github.com/labstack/gommon/log"
 )
+
+// FizzBuzzEnvLimit  is the environment variable to override the servers
+// maximum limit on GET /fizzbuzz route
+const FizzBuzzEnvLimit = "FIZZBUZZ_MAX_LIMIT"
+
+// FizzBuzzMaxLimit is the maximum threshold for GET /fizzbuzz limit parameter
+var FizzBuzzMaxLimit = 10000
+
+func init() {
+	if envLimitStr := os.Getenv(FizzBuzzEnvLimit); envLimitStr != "" {
+		envLimit, err := strconv.Atoi(envLimitStr)
+		if err != nil {
+			log.Error(err.Error())
+			return
+		}
+
+		FizzBuzzMaxLimit = envLimit
+	}
+}
 
 // FizzBuzzInput describes the expected input for the fizzbuzz handler
 type FizzBuzzInput struct {
@@ -58,6 +80,14 @@ func FizzBuzz(c echo.Context) error {
 		return err
 	}
 
+	if in.Limit > FizzBuzzMaxLimit {
+		c.Logger().Warnf("limit %d is higher than threshold %d", in.Limit, FizzBuzzMaxLimit)
+		return echo.NewHTTPError(
+			http.StatusBadRequest,
+			fmt.Sprintf("limit should be lower than %d", FizzBuzzMaxLimit),
+		)
+	}
+
 	slice := make([]string, in.Limit)
 	int3 := lcm(in.Int1, in.Int2)
 	str3 := in.Str1 + in.Str2
@@ -73,7 +103,7 @@ func FizzBuzz(c echo.Context) error {
 			slice[i] = in.Str2
 		default:
 			// strconv is more efficient than fmt.Sprint
-			slice[i] = strconv.FormatInt(int64(v), 10)
+			slice[i] = strconv.Itoa(v)
 		}
 	}
 

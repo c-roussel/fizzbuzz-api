@@ -22,6 +22,12 @@ Several ways to run this API:
 - Build the `fizzbuzz-api` docker image using `make docker`.
 Then run `docker run -p $YOUR_PORT:3000 fizzbuzz-api`.
 
+# Configuration
+
+Envrionment variables:
+
+- `FIZZBUZZ_MAX_LIMIT`: integer that will limit the maximum `limit` on /fizzbuzz route.
+
 # Routes
 
 Feel free to read `docs/swagger/swagger.yml`.
