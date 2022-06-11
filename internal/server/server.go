@@ -22,7 +22,6 @@ func (cv *CustomValidator) Validate(i interface{}) error {
 }
 
 func New() *echo.Echo {
-	// Echo instance
 	e := echo.New()
 
 	// Middleware
@@ -36,6 +35,7 @@ func New() *echo.Echo {
 	e.GET("/swagger/*", echoSwagger.WrapHandler)
 	e.GET("/mon/ping", handlers.Ping)
 	e.GET("/fizzbuzz", handlers.FizzBuzz)
+	e.GET("/fizzbuzz/stats", handlers.FizzBuzzStats)
 
 	return e
 }

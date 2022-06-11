@@ -14,6 +14,13 @@ definitions:
       message:
         type: string
     type: object
+  stats.Count:
+    properties:
+      hit:
+        type: integer
+      key:
+        type: string
+    type: object
 info:
   contact:
     email: support@swagger.io
@@ -69,6 +76,23 @@ paths:
           schema:
             $ref: '#/definitions/handlers.FizzBuzzOutput'
       summary: Customizable fizzbuzz algorithm.
+      tags:
+      - fizzbuzz
+  /fizzbuzz/stats:
+    get:
+      consumes:
+      - '*/*'
+      description: Get the 100 most used parameters on GET /fizbuzz route.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/stats.Count'
+            type: array
+      summary: Top 100 /fizzbuzz parameters.
       tags:
       - fizzbuzz
   /mon/ping:
