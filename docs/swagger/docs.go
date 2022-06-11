@@ -88,6 +88,32 @@ const docTemplate = `{
                 }
             }
         },
+        "/fizzbuzz/stats": {
+            "get": {
+                "description": "Get the 100 most used parameters on GET /fizbuzz route.",
+                "consumes": [
+                    "*/*"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "fizzbuzz"
+                ],
+                "summary": "Top 100 /fizzbuzz parameters.",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/stats.Count"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/mon/ping": {
             "get": {
                 "description": "get the status of server.",
@@ -131,6 +157,17 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "stats.Count": {
+            "type": "object",
+            "properties": {
+                "hit": {
+                    "type": "integer"
+                },
+                "key": {
                     "type": "string"
                 }
             }
