@@ -17,13 +17,9 @@ type PingOutput struct {
 }
 
 // No need to re-compute at every ping.
-var pingOut PingOutput
-
-func init() {
-	pingOut = PingOutput{
-		Message: "OK",
-		GitHash: os.Getenv("GIT_HASH"),
-	}
+var pingOut = PingOutput{
+	Message: "OK",
+	GitHash: os.Getenv("GIT_HASH"),
 }
 
 // Ping handles /mon/ping http queries
