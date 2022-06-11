@@ -2,10 +2,12 @@ package handlers_test
 
 import (
 	"fmt"
+	"math"
 	"net/http"
 	"strings"
 	"testing"
 
+	"github.com/c-roussel/fizzbuzz-api/internal/handlers"
 	"github.com/c-roussel/fizzbuzz-api/internal/server"
 	"github.com/maxatome/go-testdeep/helpers/tdhttp"
 	"github.com/maxatome/go-testdeep/td"
@@ -70,16 +72,26 @@ func TestFizzBuzzInvalidQuery(t *testing.T) {
 		CmpStatus(http.StatusBadRequest).
 		CmpJSONBody(td.JSON(`{"message": "Key: 'FizzBuzzInput.Limit' Error:Field validation for 'Limit' failed on the 'min' tag"}`))
 
-	testAPI.Name("invalid limit query param").
+	testAPI.Name("invalid limit query param - should be integer").
 		Get("/fizzbuzz?str1=toto&str2=tata&limit=string&int1=1&int2=3").
 		CmpStatus(http.StatusBadRequest).
 		CmpJSONBody(td.JSON(`{"message": "strconv.ParseInt: parsing \"string\": invalid syntax"}`))
+
+	testAPI.Name("invalid limit query param - should be lower than threshold").
+		Get("/fizzbuzz?str1=toto&str2=tata&limit=100000000&int1=1&int2=3").
+		CmpStatus(http.StatusBadRequest).
+		CmpJSONBody(td.JSON(`{"message": "limit should be lower than 10000"}`))
 }
 
 func BenchmarkFizzBuzz(b *testing.B) {
+	defer func(old int) { handlers.FizzBuzzMaxLimit = old }(handlers.FizzBuzzMaxLimit)
+	handlers.FizzBuzzMaxLimit = math.MaxInt
+
 	testAPI := tdhttp.NewTestAPI(b, server.New())
 
+	b.ResetTimer()
 	testAPI.Name("benchmark", b.N).
 		Get(fmt.Sprintf("/fizzbuzz?str1=le&str2=boncoin&limit=%d&int1=7&int2=31", b.N)).
 		CmpStatus(http.StatusOK)
+	b.StopTimer()
 }
