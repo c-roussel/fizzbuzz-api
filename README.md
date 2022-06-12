@@ -9,6 +9,7 @@ This HTTP server serves a `GET /fizzbuzz`route responding with any alternative o
 
 # Requirements
 
+- [go1.18](https://go.dev/dl/) or higher
 - [echo-swagger](https://github.com/swaggo/echo-swagger)
 
 # Installation
