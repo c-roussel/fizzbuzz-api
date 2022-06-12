@@ -12,10 +12,13 @@ import (
 	echoSwagger "github.com/swaggo/echo-swagger"
 )
 
+// CustomValidator is the validator plugged to echo webserver.
+// It is used when calling echo.Context Validate method.
 type CustomValidator struct {
 	validator *validator.Validate
 }
 
+// Validate checks the passed variable's validate tags.
 func (cv *CustomValidator) Validate(i interface{}) error {
 	if err := cv.validator.Struct(i); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
@@ -25,10 +28,7 @@ func (cv *CustomValidator) Validate(i interface{}) error {
 
 // urlSkipper middleware ignores metrics on some route
 func urlSkipper(c echo.Context) bool {
-	if strings.HasPrefix(c.Path(), "/mon") {
-		return true
-	}
-	return false
+	return strings.HasPrefix(c.Path(), "/mon")
 }
 
 func New() *echo.Echo {
