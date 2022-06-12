@@ -40,33 +40,33 @@ paths:
       - '*/*'
       description: Get your own version of the fizzbuzz algortihm.
       parameters:
-      - description: fizzbuzz's first multiple
+      - default: 3
+        description: fizzbuzz's first multiple
         in: query
         minimum: 1
         name: int1
-        required: true
         type: integer
-      - description: fizzbuzz's second multiple
+      - default: 5
+        description: fizzbuzz's second multiple
         in: query
         minimum: 1
         name: int2
-        required: true
         type: integer
-      - description: fizzbuzz's first replacement
+      - default: fizz
+        description: fizzbuzz's first replacement
         in: query
         name: str1
-        required: true
         type: string
-      - description: fizzbuzz's second replacement
+      - default: buzz
+        description: fizzbuzz's second replacement
         in: query
         name: str2
-        required: true
         type: string
-      - description: fizzbuzz's up-to value
+      - default: 100
+        description: fizzbuzz's up-to value
         in: query
         minimum: 0
         name: limit
-        required: true
         type: integer
       produces:
       - application/json

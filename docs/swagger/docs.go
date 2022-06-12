@@ -42,40 +42,40 @@ const docTemplate = `{
                     {
                         "minimum": 1,
                         "type": "integer",
+                        "default": 3,
                         "description": "fizzbuzz's first multiple",
                         "name": "int1",
-                        "in": "query",
-                        "required": true
+                        "in": "query"
                     },
                     {
                         "minimum": 1,
                         "type": "integer",
+                        "default": 5,
                         "description": "fizzbuzz's second multiple",
                         "name": "int2",
-                        "in": "query",
-                        "required": true
+                        "in": "query"
                     },
                     {
                         "type": "string",
+                        "default": "fizz",
                         "description": "fizzbuzz's first replacement",
                         "name": "str1",
-                        "in": "query",
-                        "required": true
+                        "in": "query"
                     },
                     {
                         "type": "string",
+                        "default": "buzz",
                         "description": "fizzbuzz's second replacement",
                         "name": "str2",
-                        "in": "query",
-                        "required": true
+                        "in": "query"
                     },
                     {
                         "minimum": 0,
                         "type": "integer",
+                        "default": 100,
                         "description": "fizzbuzz's up-to value",
                         "name": "limit",
-                        "in": "query",
-                        "required": true
+                        "in": "query"
                     }
                 ],
                 "responses": {

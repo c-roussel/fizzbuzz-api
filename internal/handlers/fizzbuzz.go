@@ -16,8 +16,23 @@ const FizzBuzzEnvLimit = "FIZZBUZZ_MAX_LIMIT"
 
 // FizzBuzzMaxLimit is the maximum threshold for GET /fizzbuzz limit parameter.
 var FizzBuzzMaxLimit = 10000
+var defaultFizzBuzzInput FizzBuzzInput
 
 func init() {
+	// setup default FizzBuzzInput values
+	defaultStr1 := "fizz"
+	defaultStr2 := "buzz"
+	defaultInt1 := 3
+	defaultInt2 := 5
+	defaultLimit := 100
+
+	defaultFizzBuzzInput.Str1 = &defaultStr1
+	defaultFizzBuzzInput.Str2 = &defaultStr2
+	defaultFizzBuzzInput.Int1 = &defaultInt1
+	defaultFizzBuzzInput.Int2 = &defaultInt2
+	defaultFizzBuzzInput.Limit = &defaultLimit
+
+	// setup max FizzBuzzInput.Limit value
 	if envLimitStr := os.Getenv(FizzBuzzEnvLimit); envLimitStr != "" {
 		envLimit, err := strconv.Atoi(envLimitStr)
 		if err != nil {
@@ -34,23 +49,42 @@ func init() {
 
 // FizzBuzzInput describes the expected input for the fizzbuzz handler.
 type FizzBuzzInput struct {
-	Str1  string `query:"str1" validate:"required"`
-	Str2  string `query:"str2" validate:"required"`
-	Int1  int    `query:"int1" validate:"required,min=1"`
-	Int2  int    `query:"int2" validate:"required,min=1"`
-	Limit int    `query:"limit" validate:"required,min=0"`
+	Str1  *string `query:"str1" validate:"required"`
+	Str2  *string `query:"str2" validate:"required"`
+	Int1  *int    `query:"int1" validate:"required,min=1"`
+	Int2  *int    `query:"int2" validate:"required,min=1"`
+	Limit *int    `query:"limit" validate:"required,min=0"`
+}
+
+// SetDefault converts non-provided inputs to fizzbuzz's algorithm
+// default values.
+func (in *FizzBuzzInput) SetDefault() {
+	if in.Str1 == nil {
+		in.Str1 = defaultFizzBuzzInput.Str1
+	}
+	if in.Str2 == nil {
+		in.Str2 = defaultFizzBuzzInput.Str2
+	}
+	if in.Int1 == nil {
+		in.Int1 = defaultFizzBuzzInput.Int1
+	}
+	if in.Int2 == nil {
+		in.Int2 = defaultFizzBuzzInput.Int2
+	}
+	if in.Limit == nil {
+		in.Limit = defaultFizzBuzzInput.Limit
+	}
 }
 
 // Register increments the input parameters in fizzbuzz statistics.
-// See FizzBuzzStats.
+//
+// It assumes that SetDefault method was called on the FizzBuzzInput instance
+// so that all values are non-nil.
 func (in FizzBuzzInput) Register() {
-	fizzBuzzGatherer.Hit(in.String())
-}
-
-// String is the string representing of a FizzBuzzInput.
-func (in FizzBuzzInput) String() string {
-	return fmt.Sprintf("FizzBuzzInput str1=%s str2=%s int1=%d int2=%d limit=%d",
-		in.Str1, in.Str2, in.Int1, in.Int2, in.Limit)
+	fizzBuzzGatherer.Hit(
+		fmt.Sprintf("FizzBuzzInput str1=%s str2=%s int1=%d int2=%d limit=%d",
+			*in.Str1, *in.Str2, *in.Int1, *in.Int2, *in.Limit),
+	)
 }
 
 // FizzBuzzOutput describes the response output for the fizzbuzz handler.
@@ -73,11 +107,11 @@ type FizzBuzzOutput struct {
 // @Description Get your own version of the fizzbuzz algortihm.
 // @Tags fizzbuzz
 // @Accept */*
-// @Param int1  query int    true "fizzbuzz's first multiple"     minimum(1)
-// @Param int2  query int    true "fizzbuzz's second multiple"    minimum(1)
-// @Param str1  query string true "fizzbuzz's first replacement"
-// @Param str2  query string true "fizzbuzz's second replacement"
-// @Param limit query int    true "fizzbuzz's up-to value"        minimum(0)
+// @Param int1  query int    false "fizzbuzz's first multiple"     minimum(1) default(3)
+// @Param int2  query int    false "fizzbuzz's second multiple"    minimum(1) default(5)
+// @Param str1  query string false "fizzbuzz's first replacement"             default(fizz)
+// @Param str2  query string false "fizzbuzz's second replacement"            default(buzz)
+// @Param limit query int    false "fizzbuzz's up-to value"        minimum(0) default(100)
 // @Produce json
 // @Success 200 {object} handlers.FizzBuzzOutput
 // @Router /fizzbuzz [get]
@@ -89,13 +123,15 @@ func FizzBuzz(c echo.Context) error {
 		return err
 	}
 
+	in.SetDefault()
+
 	err = c.Validate(&in)
 	if err != nil {
 		c.Logger().Warnf("failed to validate query parameters: %v", err)
 		return err
 	}
 
-	if in.Limit > FizzBuzzMaxLimit {
+	if *in.Limit > FizzBuzzMaxLimit {
 		c.Logger().Warnf("limit %d is higher than threshold %d", in.Limit, FizzBuzzMaxLimit)
 		return echo.NewHTTPError(
 			http.StatusBadRequest,
@@ -103,9 +139,11 @@ func FizzBuzz(c echo.Context) error {
 		)
 	}
 
-	slice := make([]string, in.Limit)
-	int3 := lcm(in.Int1, in.Int2)
-	str3 := in.Str1 + in.Str2
+	slice := make([]string, *in.Limit)
+	int1, int2, str1, str2 := *in.Int1, *in.Int2, *in.Str1, *in.Str2
+	int3 := lcm(int1, int2)
+	str3 := str1 + str2
+
 	var v int // avoid v's allocation at every loop
 	for i := range slice {
 		v = i + 1 // array shall start with value 1
@@ -113,10 +151,10 @@ func FizzBuzz(c echo.Context) error {
 		switch {
 		case v%int3 == 0:
 			slice[i] = str3
-		case v%in.Int1 == 0:
-			slice[i] = in.Str1
-		case v%in.Int2 == 0:
-			slice[i] = in.Str2
+		case v%int1 == 0:
+			slice[i] = str1
+		case v%int2 == 0:
+			slice[i] = str2
 		default:
 			// strconv is more efficient than fmt.Sprint
 			slice[i] = strconv.Itoa(v)
