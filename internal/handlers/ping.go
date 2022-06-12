@@ -1,6 +1,8 @@
 package handlers
 
 import (
+	"encoding/json"
+	"log"
 	"net/http"
 	"os"
 
@@ -16,16 +18,26 @@ type PingOutput struct {
 	GitHash string `json:"git_hash"`
 }
 
-// No need to re-compute at every ping.
-var pingOut = PingOutput{
-	Message: "OK",
-	GitHash: os.Getenv("GIT_HASH"),
+// No need to re-compute json marshalling at every ping.
+var pingOut json.RawMessage
+
+func init() {
+	var err error
+	pingOut, err = json.Marshal(PingOutput{
+		Message: "OK",
+		GitHash: os.Getenv("GIT_HASH"),
+	})
+	if err != nil {
+		// should never happen
+		log.Fatalf("failed to unmarshal ping's output: %v", err)
+	}
 }
 
-// Ping handles /mon/ping http queries
+// Ping handles /mon/ping HTTP requests.
 //
 // It will respond with a 200 HTTP repsonse embedding
-// a PingOutput result
+// a PingOutput result.
+//
 // @Summary Show the status of server.
 // @Description get the status of server.
 // @Tags monitoring

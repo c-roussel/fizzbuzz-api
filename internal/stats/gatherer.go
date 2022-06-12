@@ -5,14 +5,14 @@ import (
 	"sync"
 )
 
-// Gatherer is a counter of provided keys
+// Gatherer is a counter of provided keys.
 //
 // Its use is:
-// - Notify a key hit using Gatberer.Hit(key)
-// - Retrieve the different hits using Gatherer.OrderedValues()
-// - Reset the hits using Gatherer.Reset()
+//  - Notify a key hit using Gatberer.Hit(key)
+//  - Retrieve the different hits using Gatherer.Values()
+//  - Reset the hits using Gatherer.Reset()
 type Gatherer struct {
-	mutex    sync.Mutex // not using RWMutex to avoid len issues on OrderedValues
+	mutex    sync.Mutex
 	registry map[string]int
 }
 
@@ -32,12 +32,11 @@ func (g *Gatherer) Hit(key string) {
 	g.mutex.Lock()
 	defer g.mutex.Unlock()
 
-	newValue := g.registry[key] + 1
-	g.registry[key] = newValue
+	g.registry[key]++
 }
 
-// OrderedValues gathers the hit keys as a slice of Count.
-func (g *Gatherer) OrderedValues() []Count {
+// Values gathers the hit keys as a slice of Count.
+func (g *Gatherer) Values() []Count {
 	g.mutex.Lock()
 	defer g.mutex.Unlock()
 
@@ -45,6 +44,12 @@ func (g *Gatherer) OrderedValues() []Count {
 	for key, value := range g.registry {
 		values = append(values, Count{Key: key, Hit: value})
 	}
+	return values
+}
+
+// OrderedValues gathers the hit keys as an descending ordered slice of Count.
+func (g *Gatherer) OrderedValues() []Count {
+	values := g.Values()
 	sort.SliceStable(values, func(i, j int) bool {
 		return values[i].Hit > values[j].Hit
 	})

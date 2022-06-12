@@ -23,6 +23,4 @@ docker: build_docker_image clean
 
 clean:
 	go clean
-	if [ -f "./server" ]; then \
-		rm ./server; \
-	fi
+	[ -f server ] && rm server

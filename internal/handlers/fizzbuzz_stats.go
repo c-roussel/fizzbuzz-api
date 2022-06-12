@@ -6,14 +6,14 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-// FizzBuzzStats responds to GET /fizbuzz/stats http requests
+// FizzBuzzStats responds to GET /fizbuzz/stats HTTP requests.
 //
 // It will respond with a 200 HTTP repsonse embedding
-// an array of stats.Count values
+// an array of stats.Count values.
 //
 // The result is computed following the following algorithm:
-// - Every succesfful GET /fizzbuzz will increment its parameters's stats
-// - Respond with the top 100 stats
+//  - Every succesful GET /fizzbuzz will increment its parameters's stats
+//  - Respond with the top 100 stats
 //
 // @Summary Top 100 /fizzbuzz parameters.
 // @Description Get the 100 most used parameters on GET /fizbuzz route.

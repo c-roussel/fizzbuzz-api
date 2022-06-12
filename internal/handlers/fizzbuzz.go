@@ -11,17 +11,20 @@ import (
 )
 
 // FizzBuzzEnvLimit  is the environment variable to override the servers
-// maximum limit on GET /fizzbuzz route
+// maximum limit on GET /fizzbuzz route.
 const FizzBuzzEnvLimit = "FIZZBUZZ_MAX_LIMIT"
 
-// FizzBuzzMaxLimit is the maximum threshold for GET /fizzbuzz limit parameter
+// FizzBuzzMaxLimit is the maximum threshold for GET /fizzbuzz limit parameter.
 var FizzBuzzMaxLimit = 10000
 
 func init() {
 	if envLimitStr := os.Getenv(FizzBuzzEnvLimit); envLimitStr != "" {
 		envLimit, err := strconv.Atoi(envLimitStr)
 		if err != nil {
-			log.Error(err.Error())
+			log.Error(
+				"failed to load custom fizzbuzz limit from env",
+				err.Error(),
+			)
 			return
 		}
 
@@ -29,7 +32,7 @@ func init() {
 	}
 }
 
-// FizzBuzzInput describes the expected input for the fizzbuzz handler
+// FizzBuzzInput describes the expected input for the fizzbuzz handler.
 type FizzBuzzInput struct {
 	Str1  string `query:"str1" validate:"required"`
 	Str2  string `query:"str2" validate:"required"`
@@ -38,33 +41,33 @@ type FizzBuzzInput struct {
 	Limit int    `query:"limit" validate:"required,min=0"`
 }
 
-// Register increments the input parameters in fizzbuzz statistics
-// See FizzBuzzStats
+// Register increments the input parameters in fizzbuzz statistics.
+// See FizzBuzzStats.
 func (in FizzBuzzInput) Register() {
 	fizzBuzzGatherer.Hit(in.String())
 }
 
-// String is the string representing of a FizzBuzzInput
+// String is the string representing of a FizzBuzzInput.
 func (in FizzBuzzInput) String() string {
 	return fmt.Sprintf("FizzBuzzInput str1=%s str2=%s int1=%d int2=%d limit=%d",
 		in.Str1, in.Str2, in.Int1, in.Int2, in.Limit)
 }
 
-// FizzBuzzOutput describes the response output for the fizzbuzz handler
+// FizzBuzzOutput describes the response output for the fizzbuzz handler.
 type FizzBuzzOutput struct {
 	Result []string `json:"result"`
 }
 
-// FizzBuzz responds to GET /fizbuzz http queries
+// FizzBuzz responds to GET /fizbuzz HTTP requests.
 //
 // It will respond with a 200 HTTP repsonse embedding
-// a FizzBuzzOutput result
+// a FizzBuzzOutput result.
 //
-// The result is computed following the following algorithm:
-// - Return a list from 1 to `limit`
-// - Each multiple of int1 is replaced by str1
-// - Each multiple of int2 is replaced by str2
-// - Each multiple of both is replaced by str1+str2
+// The result is computed using the following algorithm:
+//  - Return a list from 1 to `limit`
+//  - Each multiple of int1 is replaced by str1
+//  - Each multiple of int2 is replaced by str2
+//  - Each multiple of both is replaced by str1+str2
 //
 // @Summary Customizable fizzbuzz algorithm.
 // @Description Get your own version of the fizzbuzz algortihm.
@@ -103,8 +106,9 @@ func FizzBuzz(c echo.Context) error {
 	slice := make([]string, in.Limit)
 	int3 := lcm(in.Int1, in.Int2)
 	str3 := in.Str1 + in.Str2
+	var v int // avoid v's allocation at every loop
 	for i := range slice {
-		v := i + 1 // array shall start with value 1
+		v = i + 1 // array shall start with value 1
 
 		switch {
 		case v%int3 == 0:
@@ -119,22 +123,21 @@ func FizzBuzz(c echo.Context) error {
 		}
 	}
 
+	// inputs are valid, add this request to fizzbuzz's stats
 	go in.Register()
 
 	return c.JSON(http.StatusOK, FizzBuzzOutput{Result: slice})
 }
 
-// greatest common divisor (GCD) via Euclidean algorithm
+// gcd computes the Greatest Common Divisor (GCD) via Euclidean algorithm.
 func gcd(a, b int) int {
 	for b != 0 {
-		t := b
-		b = a % b
-		a = t
+		a, b = b, a%b
 	}
 	return a
 }
 
-// find Least Common Multiple (LCM) via GCD
+// lcm computes the Least Common Multiple (LCM) via GCD.
 func lcm(a, b int) int {
 	return a * b / gcd(a, b)
 }

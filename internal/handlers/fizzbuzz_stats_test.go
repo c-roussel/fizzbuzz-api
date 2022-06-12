@@ -12,7 +12,7 @@ import (
 	"github.com/maxatome/go-testdeep/td"
 )
 
-func TestFizzBuzzStas(t *testing.T) {
+func TestFizzBuzzStats(t *testing.T) {
 	handlers.ExportFizzBuzzGatherer.Reset()
 
 	testAPI := tdhttp.NewTestAPI(t, server.New())
@@ -55,5 +55,5 @@ func TestFizzBuzzStas(t *testing.T) {
 	testAPI.Name("/fizzbuzz stat retrieval max result number is 100").
 		Get("/fizzbuzz/stats").
 		CmpStatus(http.StatusOK).
-		CmpJSONBody(td.JSON(`$1`, td.Len(100)))
+		CmpJSONBody(td.JSON("Len(100)"))
 }
